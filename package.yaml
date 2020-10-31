@@ -24,6 +24,9 @@ dependencies:
 
 library:
   source-dirs: src
+  dependencies:
+    - array
+    - vector
 
 executables:
   sriscem-exe:

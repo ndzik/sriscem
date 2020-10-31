@@ -1,0 +1,10 @@
+// Example assembly for 2 * 10 = 20.
+
+0: MOV ra #2
+1: MOV rb #10
+2: ADD ra ra
+3: SUB rb #1
+4: JNZ #2
+5: FIN
+
+// outputs #20 in register ra.

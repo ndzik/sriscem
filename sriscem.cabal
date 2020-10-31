@@ -26,12 +26,15 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Sriscem
   other-modules:
       Paths_sriscem
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      array
+    , base >=4.7 && <5
+    , vector
   default-language: Haskell2010
 
 executable sriscem-exe
