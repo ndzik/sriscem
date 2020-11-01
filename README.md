@@ -15,12 +15,14 @@ The instructions are limited to the following:
   * POP REG
   * FIN
 
+The CPU should use four general purpose registers (**RA**, **RB**, **RC**, **RD**).
+
 ## Goal
 
 One should be able to write a program in the given assembly language and have
-it as an input to this **sriscem**. The result should be returned when the
-emulation is done.
+it as an input to this **sriscem**. The result should be returned in **RA** when
+the emulation is done.
 
 ## This Repository...
 
-holds my take on implementing the outlined **sriscem** in beautiful  Haskell.
+...holds my take on implementing the outlined **sriscem** in beautiful  Haskell.
