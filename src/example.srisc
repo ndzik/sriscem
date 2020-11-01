@@ -1,4 +1,4 @@
-// Example assembly for 2 * 10 = 20.
+// Example assembly for 2^11 = 2048.
 
 0: MOV ra #2
 1: MOV rb #10
@@ -7,4 +7,4 @@
 4: JNZ #2
 5: FIN
 
-// outputs #20 in register ra.
+// outputs #2048 in register ra.
