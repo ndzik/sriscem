@@ -27,6 +27,7 @@ library:
   dependencies:
     - array
     - vector
+    - hspec
 
 executables:
   sriscem-exe:
@@ -49,3 +50,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - sriscem
+    - array
+    - hspec
