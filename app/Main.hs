@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+import           Sriscem
+import           Example
 
 main :: IO ()
-main = someFunc
+main = runProg prog01
