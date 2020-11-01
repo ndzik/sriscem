@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Example
       Lib
       Sriscem
   other-modules:
@@ -34,6 +35,7 @@ library
   build-depends:
       array
     , base >=4.7 && <5
+    , hspec
     , vector
   default-language: Haskell2010
 
@@ -58,6 +60,8 @@ test-suite sriscem-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      array
+    , base >=4.7 && <5
+    , hspec
     , sriscem
   default-language: Haskell2010
