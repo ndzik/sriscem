@@ -3,7 +3,7 @@ module Example where
 
 import           Sriscem
 
--- prog01 describes `2^10 = 2048`.
+-- prog01 describes `2^10 = 1024`.
 prog01 :: Program
 prog01 =
   [ MOV RA (Val 2)

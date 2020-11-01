@@ -26,7 +26,6 @@ source-repository head
 library
   exposed-modules:
       Example
-      Lib
       Sriscem
   other-modules:
       Paths_sriscem

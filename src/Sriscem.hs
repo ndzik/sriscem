@@ -109,7 +109,7 @@ prevSP :: CPU -> CPU
 prevSP cpu = cpu { sp = sub (sp cpu) (Val 1) cpu }
 
 nextSP :: CPU -> CPU
-nextSP cpu = cpu { pc = add (sp cpu) (Val 1) cpu }
+nextSP cpu = cpu { sp = add (sp cpu) (Val 1) cpu }
 
 setFlag :: RegType -> CPU -> CPU
 setFlag rt cpu =
