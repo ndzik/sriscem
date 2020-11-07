@@ -28,6 +28,8 @@ library:
     - array
     - vector
     - hspec
+    - mtl
+    - primitive
 
 executables:
   sriscem-exe:
