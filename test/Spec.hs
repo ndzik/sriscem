@@ -1,12 +1,18 @@
 import           Sriscem
 import           SriscemSM
+import           SriscemM
 import           CPU
 import           Data.Array                    as A
 import           Test.Hspec
+import           ASM
 
 main :: IO ()
-main =
-  mapM_ testCPU [(Sriscem.runProg, "Sriscem"), (SriscemSM.runProg, "SriscemSM")]
+main = mapM_
+  testCPU
+  [ (Sriscem.runProg  , "Sriscem")
+  , (SriscemSM.runProg, "SriscemSM")
+  , (SriscemM.runProg , "SriscemM")
+  ]
 
 testCPU :: (Program -> IO Value, String) -> IO ()
 testCPU (cpuType, name) = hspec $ describe name $ do

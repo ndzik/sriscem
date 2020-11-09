@@ -4,8 +4,7 @@ import           Control.Monad.State
 import           Data.Array                    as A
 import           Data.Vector.Unboxed           as V
 import           CPU
-
-type CPUEnv = State CPU CPU
+import           ASM
 
 runProg :: Program -> IO Value
 runProg p = return . snd . ra $ evalState runCPU (mkCPU p)
@@ -15,7 +14,7 @@ runCPU = do
   r <- step
   case r of
     Left  ()  -> get
-    Right cpu -> runCPU
+    Right _ -> runCPU
 
 step :: State CPU (Either () CPU)
 step = do
@@ -61,7 +60,7 @@ updateFlag rt = viewReg rt >>= (\v -> get >>= (\cpu ->
      else return cpu {z = False}
                                               )) >>= updateCPU
 mov :: OPRAND -> RegType -> State CPU CPU
-mov oprand rt = fetchReg rt >>= combine (flip const) oprand >>= updateReg
+mov oprand rt = fetchReg rt >>= combine (const id) oprand >>= updateReg
 
 psh :: OPRAND -> State CPU CPU
 psh (Reg rt) = viewReg rt >>= psh . Val
@@ -81,11 +80,11 @@ jmp :: OPRAND -> State CPU CPU
 jmp oprand = mov oprand PC
 
 combine :: (Value -> Value -> Value) -> OPRAND -> Register -> State CPU Register
-combine f (Reg rt') r@(rt, v) = viewReg rt' >>= (\v' -> combine f (Val v') r)
-combine f (Val v') r@(rt, v) = return (rt, f v v')
+combine f (Reg rt') r = viewReg rt' >>= (\v' -> combine f (Val v') r)
+combine f (Val v') (rt, v) = return (rt, f v v')
 
 updateReg :: Register -> State CPU CPU
-updateReg r@(rt, v) =
+updateReg r@(rt, _) =
   get
     >>= (\cpu -> case rt of
           RA -> updateCPU cpu { ra = r }

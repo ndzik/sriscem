@@ -18,6 +18,7 @@ import           Prelude                        ( Int
                                                 , ($)
                                                 , (==)
                                                 , const
+                                                , id
                                                 , flip
                                                 , snd
                                                 , fst
@@ -30,6 +31,7 @@ import           Control.Monad.IO.Class         ( liftIO )
 import           Data.Array                    as A
 import           Data.Vector.Unboxed           as V
 import           CPU
+import           ASM
 
 runProg :: Program -> IO Value
 runProg p =
@@ -87,10 +89,10 @@ pop rt cpu =
 
 psh :: Stack -> OPRAND -> CPU -> Stack
 psh s (Reg rt) cpu = V.cons (snd $ viewReg rt cpu) s
-psh s (Val v ) cpu = V.cons v s
+psh s (Val v ) _   = V.cons v s
 
 updReg :: CPU -> Register -> CPU
-updReg cpu r@(rt, v) = case rt of
+updReg cpu r@(rt, _) = case rt of
   RA -> cpu { ra = r }
   RB -> cpu { rb = r }
   RC -> cpu { rc = r }
@@ -108,7 +110,7 @@ viewReg rt cpu = case rt of
   SP -> sp cpu
 
 mov :: Register -> OPRAND -> CPU -> Register
-mov = combine (flip const)
+mov = combine (const id)
 
 add :: Register -> OPRAND -> CPU -> Register
 add = combine (+)
