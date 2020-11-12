@@ -4,4 +4,6 @@ import           Sriscem
 import           Example
 
 main :: IO ()
-main = runProg prog01
+main = do
+  v <- runProg prog01
+  print v

@@ -1,7 +1,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 module Example where
 
-import           Sriscem
+import           ASM
 
 -- prog01 describes `2^10 = 1024`.
 prog01 :: Program

@@ -1,47 +1,48 @@
 import           Sriscem
+import           SriscemSM
+import           SriscemM
+import           CPU
 import           Data.Array                    as A
 import           Test.Hspec
+import           ASM
 
 main :: IO ()
-main = hspec $ describe "SRISCEM" $ do
+main = mapM_
+  testCPU
+  [ (Sriscem.runProg  , "Sriscem")
+  , (SriscemSM.runProg, "SriscemSM")
+  , (SriscemM.runProg , "SriscemM")
+  ]
+
+testCPU :: (Program -> IO Value, String) -> IO ()
+testCPU (cpuType, name) = hspec $ describe name $ do
   it "moves oprands into registers" $ do
-    got <- run testMov
+    got <- cpuType testMov
     got `shouldBe` 420
   it "adds registers and oprands" $ do
-    got <- run testAddRegDiff
+    got <- cpuType testAddRegDiff
     got `shouldBe` 7
-    got <- run testAddRegSame
+    got <- cpuType testAddRegSame
     got `shouldBe` 6
-    got <- run testAddVal
+    got <- cpuType testAddVal
     got `shouldBe` 13
   it "subs registers and oprands" $ do
-    got <- run testSubRegDiff
+    got <- cpuType testSubRegDiff
     got `shouldBe` 1
-    got <- run testSubRegSame
+    got <- cpuType testSubRegSame
     got `shouldBe` 0
-    got <- run testSubVal
+    got <- cpuType testSubVal
     got `shouldBe` 5
   it "pushes and pops oprands from/to stack" $ do
-    got <- run testStack
+    got <- cpuType testStack
     got `shouldBe` 69
   it "allows to jump" $ do
-    got <- run testJump
+    got <- cpuType testJump
     got `shouldBe` 2
-    got <- run testJumpNZ
+    got <- cpuType testJumpNZ
     got `shouldBe` 2
-    got <- run testNoJumpNZ
+    got <- cpuType testNoJumpNZ
     got `shouldBe` 1
-
-run :: Program -> IO Int
-run p =
-  let cpu    = go $ mkCPU p
-      (_, v) = ra cpu
-  in  return v
- where
-  go :: CPU -> CPU
-  go cpu =
-    let opcode = rom cpu A.! (snd . pc $ cpu)
-    in  if opcode == FIN then cpu else go $ step opcode cpu
 
 testMov :: Program
 testMov = [MOV RA (Val 420), FIN]

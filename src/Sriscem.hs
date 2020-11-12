@@ -1,19 +1,11 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 module Sriscem
-  ( Instruction(..)
-  , Register(..)
-  , RegType(..)
-  , OPRAND(..)
-  , CPU(..)
-  , Program
-  , runProg
+  ( runProg
   , step
   , mkCPU
   )
 where
 
--- This Sriscem implementation is almost completely free from `Monad`s, except
--- the obligatory `Control.Monad.IO`.
 import           Prelude                        ( Int
                                                 , Eq
                                                 , Bool(..)
@@ -26,68 +18,31 @@ import           Prelude                        ( Int
                                                 , ($)
                                                 , (==)
                                                 , const
+                                                , id
                                                 , flip
                                                 , snd
                                                 , fst
                                                 , length
                                                 , print
                                                 , return
+                                                , fromIntegral
                                                 )
 import           Control.Monad.IO.Class         ( liftIO )
 import           Data.Array                    as A
-import           Data.Vector                   as V
+import           Data.Vector.Unboxed           as V
+import           CPU
+import           ASM
 
-data CPU = CPU { pc :: Register
-               , sp :: Register
-               , ra :: Register
-               , rb :: Register
-               , rc :: Register
-               , rd :: Register
-               , z :: Flag
-               , rom :: ROM
-               , stack :: Stack
-               }
-
-type ROM = Array Int Instruction
-type Program = [Instruction]
-type Stack = Vector Int
-type Flag = Bool
-type Register = (RegType, Int)
-data RegType = PC | SP | RA | RB | RC | RD deriving Eq
-data OPRAND = Reg RegType | Val Int deriving Eq
-
-data Instruction = ADD RegType OPRAND
-                 | SUB RegType OPRAND
-                 | MOV RegType OPRAND
-                 | JMP OPRAND
-                 | JNZ OPRAND
-                 | PSH OPRAND
-                 | POP RegType
-                 | FIN
-                 deriving Eq
-
-runProg :: Program -> IO ()
+runProg :: Program -> IO Value
 runProg p =
   let cpu    = go $ mkCPU p
       (_, v) = ra cpu
-  in  print v
+  in  return v
  where
   go :: CPU -> CPU
   go cpu =
-    let opcode = rom cpu A.! (snd . pc $ cpu)
+    let opcode = rom cpu A.! fromIntegral (snd . pc $ cpu)
     in  if opcode == FIN then cpu else go $ step opcode cpu
-
-mkCPU :: Program -> CPU
-mkCPU p = CPU { pc    = (PC, 0)
-              , sp    = (SP, 0)
-              , ra    = (RA, 0)
-              , rb    = (RB, 0)
-              , rc    = (RC, 0)
-              , rd    = (RD, 0)
-              , z     = True
-              , rom   = A.listArray (0, Prelude.length p) p
-              , stack = V.empty
-              }
 
 step :: Instruction -> CPU -> CPU
 step (ADD r oprand) cpu =
@@ -134,10 +89,10 @@ pop rt cpu =
 
 psh :: Stack -> OPRAND -> CPU -> Stack
 psh s (Reg rt) cpu = V.cons (snd $ viewReg rt cpu) s
-psh s (Val v ) cpu = V.cons v s
+psh s (Val v ) _   = V.cons v s
 
 updReg :: CPU -> Register -> CPU
-updReg cpu r@(rt, v) = case rt of
+updReg cpu r@(rt, _) = case rt of
   RA -> cpu { ra = r }
   RB -> cpu { rb = r }
   RC -> cpu { rc = r }
@@ -155,7 +110,7 @@ viewReg rt cpu = case rt of
   SP -> sp cpu
 
 mov :: Register -> OPRAND -> CPU -> Register
-mov = combine (flip const)
+mov = combine (const id)
 
 add :: Register -> OPRAND -> CPU -> Register
 add = combine (+)
@@ -163,7 +118,7 @@ add = combine (+)
 sub :: Register -> OPRAND -> CPU -> Register
 sub = combine (-)
 
-combine :: (Int -> Int -> Int) -> Register -> OPRAND -> CPU -> Register
+combine :: (Value -> Value -> Value) -> Register -> OPRAND -> CPU -> Register
 combine f r@(rt, v) oprand cpu = case oprand of
   (Reg rt') -> combine f r (Val $ snd $ viewReg rt' cpu) cpu
   (Val v' ) -> (rt, f v v')
