@@ -2,9 +2,7 @@ module SCPU where
 
 import           Control.Monad.ST
 import           Data.STRef
-import           Data.Array                     ( Array
-                                                , listArray
-                                                )
+import           Data.Array                     ( listArray )
 import           Data.Vector.Unboxed.Mutable
 import           Data.Vector.Unboxed
 import           ASM

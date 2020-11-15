@@ -1,17 +1,9 @@
-import           Sriscem
-import           SriscemSM
-import           SriscemM
+import           SriscemMonad
+import           MCPU
 import           Test.Hspec
-import           ASM
-import           Example
 
 main :: IO ()
-main = mapM_
-  testCPU
-  [ (Sriscem.runProg  , "Sriscem")
-  , (SriscemSM.runProg, "SriscemSM")
-  , (SriscemM.runProg , "SriscemM")
-  ]
+main = mapM_ testCPU [(SriscemMonad.runProg, "SriscemMonad")]
 
 testCPU :: (Program -> IO Value, String) -> IO ()
 testCPU (cpuType, name) = hspec $ describe name $ do
@@ -50,34 +42,50 @@ testCPU (cpuType, name) = hspec $ describe name $ do
     got `shouldBe` 20
 
 testMov :: Program
-testMov = [MOV RA (Val 420), FIN]
+testMov = [MOV RA (OV 420), FIN]
 
 testAddRegDiff :: Program
-testAddRegDiff = [MOV RA (Val 3), MOV RB (Val 4), ADD RA (Reg RB), FIN]
+testAddRegDiff = [MOV RA (OV 3), MOV RB (OV 4), ADD RA (OR RB), FIN]
 
 testAddRegSame :: Program
-testAddRegSame = [MOV RA (Val 3), ADD RA (Reg RA), FIN]
+testAddRegSame = [MOV RA (OV 3), ADD RA (OR RA), FIN]
 
 testAddVal :: Program
-testAddVal = [MOV RA (Val 4), ADD RA (Val 9), FIN]
+testAddVal = [MOV RA (OV 4), ADD RA (OV 9), FIN]
 
 testSubRegDiff :: Program
-testSubRegDiff = [MOV RA (Val 4), MOV RB (Val 3), SUB RA (Reg RB), FIN]
+testSubRegDiff = [MOV RA (OV 4), MOV RB (OV 3), SUB RA (OR RB), FIN]
 
 testSubRegSame :: Program
-testSubRegSame = [MOV RA (Val 3), SUB RA (Reg RA), FIN]
+testSubRegSame = [MOV RA (OV 3), SUB RA (OR RA), FIN]
 
 testSubVal :: Program
-testSubVal = [MOV RA (Val 9), SUB RA (Val 4), FIN]
+testSubVal = [MOV RA (OV 9), SUB RA (OV 4), FIN]
 
 testStack :: Program
-testStack = [MOV RB (Val 69), PSH (Reg RB), POP RA, FIN]
+testStack = [MOV RB (OV 69), PSH (OR RB), POP RA, FIN]
 
 testJump :: Program
-testJump = [MOV RA (Val 1), JMP (Val 3), FIN, MOV RA (Val 2), FIN]
+testJump = [MOV RA (OV 1), JMP (OV 3), FIN, MOV RA (OV 2), FIN]
 
 testJumpNZ :: Program
-testJumpNZ = [ADD RA (Val 1), JNZ (Val 3), FIN, MOV RA (Val 2), FIN]
+testJumpNZ = [ADD RA (OV 1), JNZ (OV 3), FIN, MOV RA (OV 2), FIN]
 
 testNoJumpNZ :: Program
-testNoJumpNZ = [MOV RA (Val 1), JNZ (Val 3), FIN, MOV RA (Val 2), FIN]
+testNoJumpNZ = [MOV RA (OV 1), JNZ (OV 3), FIN, MOV RA (OV 2), FIN]
+
+-- prog01 describes `2^10 = 1024`.
+prog01 :: Program
+prog01 =
+  [MOV RA (OV 2), MOV RB (OV 9), ADD RA (OR RA), SUB RB (OV 1), JNZ (OV 2), FIN]
+
+-- prog02 describes `2*10 = 20`.
+prog02 :: Program
+prog02 =
+  [ MOV RC (OV 2)
+  , MOV RB (OV 10)
+  , ADD RA (OR RC)
+  , SUB RB (OV 1)
+  , JNZ (OV 2)
+  , FIN
+  ]
