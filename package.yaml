@@ -54,3 +54,15 @@ tests:
     - sriscem
     - array
     - hspec
+
+  sriscemMonad-test:
+    main:                Spec.hs
+    source-dirs:         testMonad
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - sriscem
+    - array
+    - hspec
